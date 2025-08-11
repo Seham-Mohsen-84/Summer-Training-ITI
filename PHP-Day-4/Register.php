@@ -1,18 +1,53 @@
 <?php
 require_once 'db_connection.php';
 
-$fname = $_POST['firstname'] ?? "";
-$lname = $_POST['lastname'] ?? "";
-$address = $_POST['address'] ?? "";
-$country = $_POST['country'] ?? "";
-$gender = $_POST['gender'] ?? "";
-$username = $_POST['username'] ?? "";
-$password = $_POST['password'] ?? "";
-$department = $_POST['department'] ?? "";
+$result = false;
+$errorMsg = "";
 
-$sql = "INSERT INTO Users (fname,lname,address,country,gender,username,password,department) 
-        VALUES('$fname','$lname','$address','$country','$gender','$username','$password','$department')";
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $fname = $_POST['firstname'] ?? "";
+    $lname = $_POST['lastname'] ?? "";
+    $address = $_POST['address'] ?? "";
+    $country = $_POST['country'] ?? "";
+    $gender = $_POST['gender'] ?? "";
+    $username = $_POST['username'] ?? "";
+    $password = $_POST['password'] ?? "";
+    $department = $_POST['department'] ?? "";
+
+    
+    $photoName = "";
+    if (!empty($_FILES['photo']['name'])) {
+        $uploadDir = "uploads/"; 
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+        $photoName = time() . "_" . basename($_FILES['photo']['name']);
+        $targetPath = $uploadDir . $photoName;
+
+        if (!move_uploaded_file($_FILES['photo']['tmp_name'], $targetPath)) {
+            $errorMsg = "Error uploading photo.";
+        }
+    }
+
+    $sql = "INSERT INTO Users (fname,lname,address,country,gender,username,password,department,photo) 
+            VALUES(?,?,?,?,?,?,?,?,?)";
+
+    try {
+        $stmt = $conn->prepare($sql);
+        $result = $stmt->execute([
+            $fname, $lname, $address, $country, $gender, $username, $password, $department, $photoName
+        ]);
+
+        if ($result) {
+            header("Location: " . $_SERVER['PHP_SELF'] . "?success=1");
+            exit;
+        }
+    } catch (PDOException $e) {
+        $errorMsg = $e->getMessage();
+    }
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,36 +60,34 @@ $sql = "INSERT INTO Users (fname,lname,address,country,gender,username,password,
 <div class="container">
     <div class="row mt-5 d-flex justify-content-center">
         <div class="row-md-6">
-            <?php if ($_SERVER['REQUEST_METHOD'] === 'POST') : ?>
-                <?php if ($conn->query($sql)) : ?>
-                    <div class="alert alert-success mb-4" role="alert">
-                        ✅ New record created successfully
-                    </div>
-                <?php else : ?>
-                    <div class="alert alert-danger mb-4" role="alert">
-                        ❌ Error: <?= $conn->error ?>
-                    </div>
-                <?php endif; ?>
+            <?php if (isset($_GET['success']) && $_GET['success'] == 1): ?>
+                <div class="alert alert-success mb-4" role="alert">
+                    New record created successfully
+                </div>
+            <?php elseif (!empty($errorMsg)): ?>
+                <div class="alert alert-danger mb-4" role="alert">
+                    Error: <?= htmlspecialchars($errorMsg) ?>
+                </div>
             <?php endif; ?>
 
             <div class="card p-4 shadow">
                 <h5 class="text-center mb-3">Registration</h5>
-                <form action="" method="post">
+                <form action="" method="post" enctype="multipart/form-data" class="was-validated">
                     <div class="mb-3">
                         <label>First Name</label>
-                        <input type="text" class="form-control" placeholder="First Name" name="firstname">
+                        <input type="text" class="form-control" placeholder="First Name" name="firstname" required>
                     </div>
                     <div class="mb-3">
                         <label>Last Name</label>
-                        <input type="text" class="form-control" placeholder="Last Name" name="lastname">
+                        <input type="text" class="form-control" placeholder="Last Name" name="lastname" required>
                     </div>
                     <div class="mb-3">
                         <label>Address</label>
-                        <textarea name="address" class="form-control" placeholder="Address"></textarea>
+                        <textarea name="address" class="form-control" placeholder="Address" required></textarea>
                     </div>
                     <div class="mb-3">
                         <label>Country</label>
-                        <select class="form-select" name="country">
+                        <select class="form-select" name="country" required>
                             <option selected disabled>Open this select menu</option>
                             <option value="egypt">Egypt</option>
                             <option value="usa">USA</option>
@@ -74,15 +107,19 @@ $sql = "INSERT INTO Users (fname,lname,address,country,gender,username,password,
                     </div>
                     <div class="mb-3">
                         <label>User Name</label>
-                        <input type="text" class="form-control" placeholder="User Name" name="username">
+                        <input type="text" class="form-control" placeholder="User Name" name="username" required>
                     </div>
                     <div class="mb-3">
                         <label>Password</label>
-                        <input type="password" class="form-control" placeholder="Password" name="password">
+                        <input type="password" class="form-control" placeholder="Password" name="password" required>
                     </div>
                     <div class="mb-3">
                         <label>Department</label>
-                        <input type="text" class="form-control" placeholder="Department" name="department">
+                        <input type="text" class="form-control" placeholder="Department" name="department" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="formFileSm" class="form-label">Upload Photo</label>
+                        <input class="form-control form-control-sm" id="formFileSm" type="file" name="photo" required>
                     </div>
                     <div class="mb-3">
                         <label>Insert Your Code</label>

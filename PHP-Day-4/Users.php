@@ -1,7 +1,12 @@
 <?php
- require_once 'db_connection.php';
- $sql = "SELECT * FROM `users`";
- $result = $conn->query($sql);
+session_start();
+
+require_once 'db_connection.php';
+
+if(!isset($_SESSION['username']) and !isset($_SESSION['password'])){
+    header("Location: Login.php");
+}
+
 ?>
 <!Doctype html>
 <html lang="en">
@@ -26,24 +31,25 @@
                     <th>User_Name</th>
                     <th>Password</th>
                     <th>Department</th>
-                    <th colspan="4">Actions</th>
+                    <th colspan="3">Actions</th>
                 </tr>
                 </thead>
                 <tbody>
                 <?php
+                $sql = "SELECT * FROM `users`";
+                $result = $conn->query($sql);
                 $rows = $result->fetchAll(PDO::FETCH_ASSOC);
                 if (count($rows) > 0) {
                     foreach ($rows as $row) {
                         echo "<tr>";
-                        echo "<td>" . $row["fname"] . "</td>";
-                        echo "<td>" . $row["lname"] . "</td>";
-                        echo "<td>" . $row["address"] . "</td>";
-                        echo "<td>" . $row["country"] . "</td>";
-                        echo "<td>" . $row["gender"] . "</td>";
-                        echo "<td>" . $row["username"] . "</td>";
-                        echo "<td>" . $row["password"] . "</td>";
-                        echo "<td>" . $row["department"] . "</td>";
-                        echo "<td> <a href='Register.php' class='btn btn-success'>Add</a> </td>";
+                        echo "<td>" . htmlspecialchars($row["fname"]) . "</td>";
+                        echo "<td>" . htmlspecialchars($row["lname"]) . "</td>";
+                        echo "<td>" . htmlspecialchars($row["address"]) . "</td>";
+                        echo "<td>" . htmlspecialchars($row["country"])  . "</td>";
+                        echo "<td>" . htmlspecialchars($row["gender"]) . "</td>";
+                        echo "<td>" . htmlspecialchars($row["username"]) . "</td>";
+                        echo "<td>" . htmlspecialchars($row["password"]) . "</td>";
+                        echo "<td>" . htmlspecialchars($row["department"]) . "</td>";
                         echo "<td> <a href='View.php?id={$row['id']}' class='btn btn-primary'>View</a> </td>";
                         echo "<td> <a href='Edit.php?id={$row['id']}' class='btn btn-warning'>Edit</a> </td>";
                         echo "<td> <a href='Delete.php?id={$row['id']}' class='btn btn-danger'>Delete</a> </td>";
@@ -52,6 +58,10 @@
                 }?>
                 </tbody>
             </table>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="Register.php" class="btn btn-outline-success flex-fill text-center">Add</a>
+                <a href="Logout.php" class="btn btn-outline-dark flex-fill text-center">Logout</a>
+            </div>
         </div>
     </div>
 </div>

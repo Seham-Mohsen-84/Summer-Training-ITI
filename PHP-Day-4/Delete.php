@@ -1,4 +1,10 @@
 <?php
+
+session_start();
+if(!isset($_SESSION['username']) and !isset($_SESSION['password'])){
+    header("Location: Login.php");
+}
+
 require_once 'db_connection.php';
 
 $id = $_GET['id'] ?? null;

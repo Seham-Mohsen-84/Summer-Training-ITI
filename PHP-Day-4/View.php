@@ -1,4 +1,9 @@
 <?php
+session_start();
+if(!isset($_SESSION['username']) and !isset($_SESSION['password'])){
+    header("Location: Login.php");
+}
+
 require_once 'db_connection.php';
 
 $id = $_GET['id'] ?? null;
@@ -26,16 +31,23 @@ if ($id) {
             <div class="card text-center" style="width: 30rem;">
                 <?php while ($row = $stmt->fetch(PDO::FETCH_ASSOC)): ?>
                     <div class="card-body">
-                        <h5 class="card-title"><?= ($row['fname'] . ' ' . $row['lname'].' Information!') ?></h5>
+                        <?php if (!empty($row['photo'])): ?>
+                            <img src="uploads/<?= htmlspecialchars($row['photo']) ?>"
+                                 alt="User Photo"
+                                 class="rounded-circle mb-3"
+                                 style="width: 100px; height: 100px; object-fit: cover;">
+                        <?php endif; ?>
+
+                        <h5 class="card-title"><?= htmlspecialchars($row['fname'])  . ' ' . htmlspecialchars($row['lname'])  ?> Information!</h5>
                         <p class="card-text">
-                            <b>First Name:</b> <?= ($row['fname']) ?> <br>
-                            <b>Last Name:</b> <?= ($row['lname']) ?> <br>
-                            <b>Address:</b> <?= ($row['address']) ?> <br>
-                            <b>Country:</b> <?= ($row['country']) ?> <br>
-                            <b>Gender:</b> <?= ($row['gender']) ?> <br>
-                            <b>User Name:</b> <?= ($row['username']) ?> <br>
-                            <b>Password:</b> <?= ($row['password']) ?> <br>
-                            <b>Department:</b> <?= ($row['department']) ?> <br>
+                            <b>First Name:</b> <?= htmlspecialchars($row['fname'])  ?> <br>
+                            <b>Last Name:</b> <?= htmlspecialchars($row['lname'])  ?> <br>
+                            <b>Address:</b> <?= htmlspecialchars($row['address'])  ?> <br>
+                            <b>Country:</b> <?= htmlspecialchars($row['country'])  ?> <br>
+                            <b>Gender:</b> <?= htmlspecialchars($row['gender'])  ?> <br>
+                            <b>User Name:</b> <?= htmlspecialchars($row['username'])  ?> <br>
+                            <b>Password:</b> <?= htmlspecialchars($row['password'])  ?> <br>
+                            <b>Department:</b> <?= htmlspecialchars($row['department'])  ?> <br>
                         </p>
                         <a href="Users.php" class="btn btn-success">Go Back</a>
                     </div>

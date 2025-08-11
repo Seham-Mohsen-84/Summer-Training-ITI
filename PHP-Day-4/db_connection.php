@@ -11,6 +11,7 @@ $conn = new PDO(
     $db_pass
 );
 
+
 if($conn){
     echo "<script>alter('Connected successfully')</script>";
 }else{
