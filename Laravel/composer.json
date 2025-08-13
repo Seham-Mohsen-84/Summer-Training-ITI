@@ -1,0 +1,15 @@
+{
+    "name": "seham/laravel",
+    "autoload": {
+        "psr-4": {
+            "Seham\\Laravel\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "seham mohsen",
+            "email": "sehammohsen84@gmail.com"
+        }
+    ],
+    "require": {}
+}
